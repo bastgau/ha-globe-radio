@@ -4,10 +4,32 @@
       "name": "Play station",
       "description": "Adds a radio station to Music Assistant (with its name and logo) and plays it on a Music Assistant player.",
       "fields": {
-        "entity_id": { "name": "Player", "description": "Music Assistant media player." },
-        "url": { "name": "Stream URL", "description": "URL of the radio stream." },
-        "name": { "name": "Name", "description": "Station name (the Globe Radio prefix is added)." },
-        "image_url": { "name": "Logo URL", "description": "Full URL of the logo, reachable from the Music Assistant server." }
+        "entity_id": {
+          "name": "Player",
+          "description": "Music Assistant media player."
+        },
+        "url": {
+          "name": "Stream URL",
+          "description": "URL of the radio stream."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Station name (the Globe Radio prefix is added)."
+        },
+        "image_url": {
+          "name": "Logo URL",
+          "description": "Full URL of the logo, reachable from the Music Assistant server."
+        }
+      }
+    },
+    "cleanup": {
+      "name": "Clean up stations",
+      "description": "Removes the stations added by Globe Radio from the Music Assistant library. Favorites and the station being played are kept.",
+      "fields": {
+        "dry_run": {
+          "name": "Dry run",
+          "description": "Only list what would be removed."
+        }
       }
     }
   }

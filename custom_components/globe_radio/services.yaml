@@ -21,3 +21,10 @@ play_station:
       example: "http://homeassistant.local:8123/local/radio-globe-card/logos_square/abc.webp"
       selector:
         text:
+
+cleanup:
+  fields:
+    dry_run:
+      default: false
+      selector:
+        boolean:
