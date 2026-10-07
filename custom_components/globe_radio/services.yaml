@@ -1,0 +1,23 @@
+play_station:
+  fields:
+    entity_id:
+      required: true
+      example: media_player.living_room
+      selector:
+        entity:
+          domain: media_player
+          integration: music_assistant
+    url:
+      required: true
+      example: "https://stream.example.com/radio.mp3"
+      selector:
+        text:
+    name:
+      required: true
+      example: "Radio Example"
+      selector:
+        text:
+    image_url:
+      example: "http://homeassistant.local:8123/local/radio-globe-card/logos_square/abc.webp"
+      selector:
+        text:
