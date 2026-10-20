@@ -8,19 +8,19 @@ Music Assistant ignores the `title` and `thumb` sent with `media_player.play_med
 
 `globe_radio.play_station`
 
-| Field       | Required | Description                                                                 |
-| ----------- | -------- | --------------------------------------------------------------------------- |
-| `entity_id` | yes      | Music Assistant media player                                                |
-| `url`       | yes      | Stream URL                                                                  |
-| `name`      | yes      | Station name, stored as `[Globe Radio] <name>`                              |
-| `image_url` | no       | Full logo URL, reachable from the Music Assistant server (no local path)    |
+| Field       | Required | Description                                                              |
+| ----------- | -------- | ------------------------------------------------------------------------ |
+| `entity_id` | yes      | Music Assistant media player                                             |
+| `url`       | yes      | Stream URL                                                               |
+| `name`      | yes      | Station name, stored as `[Globe Radio] <name>`                           |
+| `image_url` | no       | Full logo URL, reachable from the Music Assistant server (no local path) |
 
 `globe_radio.cleanup`
 
 Removes the stations added by `play_station` (name starting with `[Globe Radio]`) from the Music Assistant library. Favorites and the station a queue is playing or has paused are kept.
 
-| Field     | Required | Description                                                          |
-| --------- | -------- | -------------------------------------------------------------------- |
+| Field     | Required | Description                                                                         |
+| --------- | -------- | ----------------------------------------------------------------------------------- |
 | `dry_run` | no       | `true` only lists what would be removed. The response holds `removed` and `skipped` |
 
 Example automation, every night at 4:00:
