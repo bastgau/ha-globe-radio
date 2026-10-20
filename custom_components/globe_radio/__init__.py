@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import voluptuous as vol
+import probatio
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
@@ -28,16 +28,16 @@ PAGE_SIZE = 500
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
-PLAY_STATION_SCHEMA = vol.Schema(
+PLAY_STATION_SCHEMA = probatio.Schema(
     {
-        vol.Required("entity_id"): cv.entity_id,
-        vol.Required(ATTR_URL): cv.url,
-        vol.Required(ATTR_NAME): cv.string,
-        vol.Optional(ATTR_IMAGE_URL): cv.string,
+        probatio.Required("entity_id"): cv.entity_id,
+        probatio.Required(ATTR_URL): cv.url,
+        probatio.Required(ATTR_NAME): cv.string,
+        probatio.Optional(ATTR_IMAGE_URL): cv.string,
     }
 )
 
-CLEANUP_SCHEMA = vol.Schema({vol.Optional(ATTR_DRY_RUN, default=False): cv.boolean})
+CLEANUP_SCHEMA = probatio.Schema({probatio.Optional(ATTR_DRY_RUN, default=False): cv.boolean})
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -95,9 +95,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         _LOGGER.debug("Cleanup (dry run: %s): %s removed, %s kept", dry_run, len(removed), len(skipped))
         return {"dry_run": dry_run, "removed": removed, "skipped": skipped}
 
-    hass.services.async_register(
-        DOMAIN, SERVICE_PLAY_STATION, handle_play_station, schema=PLAY_STATION_SCHEMA
-    )
+    hass.services.async_register(DOMAIN, SERVICE_PLAY_STATION, handle_play_station, schema=PLAY_STATION_SCHEMA)
     hass.services.async_register(
         DOMAIN,
         SERVICE_CLEANUP,
@@ -120,9 +118,7 @@ async def _list_globe_radios(mass: Any) -> list[dict[str, Any]]:
             offset=offset,
             summary=False,
         )
-        radios.extend(
-            radio for radio in page if str(radio.get("name", "")).startswith(NAME_PREFIX)
-        )
+        radios.extend(radio for radio in page if str(radio.get("name", "")).startswith(NAME_PREFIX))
         if len(page) < PAGE_SIZE:
             return radios
         offset += PAGE_SIZE
