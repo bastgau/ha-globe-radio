@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any, Final, cast
 
 import probatio
 
@@ -11,7 +11,9 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.typing import ConfigType
+
+if TYPE_CHECKING:
+    from homeassistant.helpers.typing import ConfigType
 
 DOMAIN = "globe_radio"
 SERVICE_PLAY_STATION = "play_station"
@@ -26,7 +28,7 @@ ATTR_DRY_RUN = "dry_run"
 
 PAGE_SIZE = 500
 
-CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
+CONFIG_SCHEMA: Final[Any] = cv.empty_config_schema(DOMAIN)  # pylint: disable=invalid-name  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
 
 PLAY_STATION_SCHEMA = probatio.Schema(
     {
@@ -42,8 +44,17 @@ CLEANUP_SCHEMA = probatio.Schema({probatio.Optional(ATTR_DRY_RUN, default=False)
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the play_station service."""
+async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
+    """Register the play_station and cleanup services.
+
+    Args:
+        hass (HomeAssistant): The Home Assistant instance.
+        _config (ConfigType): The YAML configuration (unused: this integration has no YAML options).
+
+    Returns:
+        bool: True once the services are registered.
+
+    """
 
     async def handle_play_station(call: ServiceCall) -> None:
         """Add the station to Music Assistant, then play it."""
@@ -56,7 +67,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
         radio = await mass.send_command("builtin/add_radio", **args)
         # Play the stored radio by its URI; the raw URL still works if no URI comes back
-        media_id = radio.get("uri") if isinstance(radio, dict) else None
+        media_id: str | None = cast("dict[str, Any]", radio).get("uri") if isinstance(radio, dict) else None
         _LOGGER.debug("Radio added, playing %s", media_id or url)
 
         await hass.services.async_call(
@@ -93,10 +104,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 )
             removed.append(name)
         _LOGGER.debug("Cleanup (dry run: %s): %s removed, %s kept", dry_run, len(removed), len(skipped))
-        return {"dry_run": dry_run, "removed": removed, "skipped": skipped}
+        return cast("ServiceResponse", {"dry_run": dry_run, "removed": removed, "skipped": skipped})
 
-    hass.services.async_register(DOMAIN, SERVICE_PLAY_STATION, handle_play_station, schema=PLAY_STATION_SCHEMA)
-    hass.services.async_register(
+    hass.services.async_register(DOMAIN, SERVICE_PLAY_STATION, handle_play_station, schema=PLAY_STATION_SCHEMA)  # pyright: ignore[reportUnknownMemberType]
+    hass.services.async_register(  # pyright: ignore[reportUnknownMemberType]
         DOMAIN,
         SERVICE_CLEANUP,
         handle_cleanup,
@@ -107,7 +118,15 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def _list_globe_radios(mass: Any) -> list[dict[str, Any]]:
-    """Return the library radios whose name starts with the Globe Radio prefix."""
+    """Return the library radios whose name starts with the Globe Radio prefix.
+
+    Args:
+        mass (Any): The Music Assistant client.
+
+    Returns:
+        list[dict[str, Any]]: The matching radios, across all pages of the library.
+
+    """
     radios: list[dict[str, Any]] = []
     offset = 0
     while True:
@@ -125,20 +144,41 @@ async def _list_globe_radios(mass: Any) -> list[dict[str, Any]]:
 
 
 async def _playing_names(mass: Any) -> set[str]:
-    """Return the names of the items that a Music Assistant queue is playing or has paused."""
+    """Return the names of the items that a Music Assistant queue is playing or has paused.
+
+    Args:
+        mass (Any): The Music Assistant client.
+
+    Returns:
+        set[str]: The names of the items currently playing or paused in any queue.
+
+    """
     names: set[str] = set()
-    for queue in await mass.send_command("player_queues/all"):
+    for queue in cast("list[dict[str, Any]]", await mass.send_command("player_queues/all")):
         if queue.get("state") == "idle":
             continue
-        media_item = (queue.get("current_item") or {}).get("media_item") or {}
+        current_item: dict[str, Any] = queue.get("current_item") or {}
+        media_item: dict[str, Any] = current_item.get("media_item") or {}
         if name := media_item.get("name"):
             names.add(name)
     return names
 
 
 def _get_client(hass: HomeAssistant) -> Any:
-    """Return the Music Assistant client of the loaded Music Assistant integration."""
+    """Return the Music Assistant client of the loaded Music Assistant integration.
+
+    Args:
+        hass (HomeAssistant): The Home Assistant instance.
+
+    Returns:
+        Any: The Music Assistant client.
+
+    Raises:
+        ServiceValidationError: If the Music Assistant integration is not loaded.
+
+    """
     for entry in hass.config_entries.async_entries(MUSIC_ASSISTANT_DOMAIN):
         if entry.state is ConfigEntryState.LOADED:
             return entry.runtime_data.mass
-    raise ServiceValidationError("Music Assistant is not loaded")
+    msg = "Music Assistant is not loaded"
+    raise ServiceValidationError(msg)
