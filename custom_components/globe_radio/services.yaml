@@ -18,7 +18,7 @@ play_station:
       selector:
         text:
     image_url:
-      example: "http://homeassistant.local:8123/local/radio-globe-card/logos_square/abc.webp"
+      example: "https://example.com/logos/radio-example.png"
       selector:
         text:
 
