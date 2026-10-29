@@ -73,9 +73,9 @@ Every station played stays in the Music Assistant library under the `[Globe Radi
 
 Removes the stations added by `play_station` (name starting with `[Globe Radio]`) from the Music Assistant library. Favorites and the station a queue is playing or has paused are kept.
 
-| Field     | Required | Description                                                                           |
-| --------- | -------- | ------------------------------------------------------------------------------------- |
-| `dry_run` | no       | `true` only lists what would be removed. The response holds `removed` and `skipped`   |
+| Field     | Required | Description                                                                         |
+| --------- | -------- | ----------------------------------------------------------------------------------- |
+| `dry_run` | no       | `true` only lists what would be removed. The response holds `removed` and `skipped` |
 
 Example automation, every night at 4:00:
 
